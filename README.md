@@ -30,17 +30,18 @@ churn so retention efforts can be targeted where they matter most.
 
 ## Project Structure
 
+```
 customer-churn-prediction/
 │
 ├── data/
-│   ├── raw/                         # Original CSV (not tracked by git)
-│   └── processed/                   # Cleaned outputs (not tracked by git)
+│   ├── raw/                        # Original CSVs (not tracked by git)
+│   └── processed/                  # Cleaned outputs (not tracked by git)
 │
 ├── docs/
-│   └── project_journal.md        # Day-by-day decisions and learnings
+│   └── project_journal.md          # Day-by-day decisions and learnings
 │
-├── images/                    # Charts saved from notebooks
-├── models/                   # Saved model files (not tracked by git)
+├── images/                         # Charts saved from notebooks
+├── models/                         # Saved model files (not tracked by git)
 │
 ├── notebooks/
 │   ├── 01_data_understanding.ipynb
@@ -53,6 +54,7 @@ customer-churn-prediction/
 │
 ├── .gitignore
 └── README.md
+```
 
 ---
 
