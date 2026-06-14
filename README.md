@@ -66,7 +66,12 @@ customer-churn-prediction/
 
 ## Key Findings from EDA
 
-*To be updated after EDA.*
+- **Contract type** is the strongest categorical churn driver — month-to-month customers churn at 42.7% vs 2.8% for two-year contracts
+- **Fiber optic** customers churn at 41.9% — more than double the DSL rate of 19.0%
+- **Electronic check** payment method has a 45.3% churn rate — the highest of all payment types
+- **Senior citizens** churn at 41.7% vs 23.6% for non-seniors
+- **Short-tenure customers are the highest-risk group** — 47.4% churn rate in the first 12 months, falling to 9.5% after 4 years
+- **Churned customers pay more per month but less in total** — they leave before charges accumulate
 
 ---
 
@@ -87,7 +92,7 @@ customer-churn-prediction/
 | Phase | Notebook | Status |
 |-------|----------|--------|
 | Data understanding | 01_data_understanding.ipynb | ✅ Complete |
-| Exploratory analysis | 02_eda.ipynb | ⏳ |
+| Exploratory analysis | 02_eda.ipynb | ✅ Complete |
 | Data cleaning | 03_data_cleaning.ipynb | ⏳ |
 | Feature engineering | 04_feature_engineering.ipynb | ⏳ |
 | Baseline modelling | 05_baseline_model.ipynb | ⏳ |

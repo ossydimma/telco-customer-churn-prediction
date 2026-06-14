@@ -35,3 +35,52 @@ identifier to drop.
 
 Next step: EDA — distributions for tenure, MonthlyCharges and TotalCharges, churn rate
 by Contract, InternetService and PaymentMethod, and boxplots to check for outliers.
+
+
+## 2026-06-12
+
+Completed exploratory data analysis on the Telco Customer Churn dataset.
+
+### Churn distribution
+1,869 customers churned out of 7,043 — a 26.5% positive rate.
+Class imbalance confirmed. Accuracy will not be a useful metric. ROC-AUC is the primary measure.
+
+### Numeric features
+Tenure is the clearest separator between churned and retained customers.
+Churned customers have a median tenure of roughly 10 months; retained customers around 38 months.
+Monthly charges are higher on average for churned customers.
+Total charges are lower for churned customers despite the higher monthly rate — they leave before spend accumulates.
+No outliers requiring removal were found in any numeric column.
+
+### Contract type
+Month-to-month customers churn at 42.7%.
+One-year contracts: 11.3%. Two-year contracts: 2.8%.
+Contract length is the single strongest categorical predictor identified in EDA.
+
+### Internet service
+Fiber optic customers churn at 41.9% — more than double the DSL rate of 19.0%.
+Customers with no internet service churn at only 7.4%.
+This may reflect pricing or service quality issues specific to the fiber product.
+
+### Payment method
+Electronic check customers churn at 45.3% — the highest of all payment methods.
+Automatic payment methods (bank transfer, credit card) cluster between 15–17%.
+Electronic check may be a proxy for lower engagement or less committed customers.
+
+### Senior citizens
+Senior citizens churn at 41.7% vs 23.6% for non-seniors.
+A meaningful difference that will likely appear in feature importance.
+
+### Tenure groups
+0–12 months: 47.4% churn rate — the highest-risk window.
+13–24 months: 28.7%. 25–48 months: 20.4%. 49–72 months: 9.5%.
+The pattern is monotonically decreasing — the longer a customer stays, the less likely they are to leave.
+
+### Correlation heatmap
+Tenure and TotalCharges are strongly positively correlated (expected — longer customers accumulate more spend).
+MonthlyCharges and TotalCharges are moderately correlated.
+ChurnFlag shows the strongest negative correlation with tenure — confirming EDA findings.
+Contract type and tenure are also negatively correlated — month-to-month customers have shorter tenures on average.
+
+### Next step
+Data cleaning (03_data_cleaning.ipynb) — drop the 11 blank TotalCharges rows, encode all binary columns, collapse three-value service columns to 0/1, encode remaining categoricals, drop customerID.
