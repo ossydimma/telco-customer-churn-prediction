@@ -84,3 +84,46 @@ Contract type and tenure are also negatively correlated — month-to-month custo
 
 ### Next step
 Data cleaning (03_data_cleaning.ipynb) — drop the 11 blank TotalCharges rows, encode all binary columns, collapse three-value service columns to 0/1, encode remaining categoricals, drop customerID.
+
+## 2026-06-14
+
+Completed data cleaning on the Telco Customer Churn dataset.
+
+### Rows removed
+Dropped 11 rows where TotalCharges was a blank string. These were invisible to
+`.isnull().sum()` — caught in notebook 01 by inspecting whitespace values directly.
+All 11 had tenure = 0. Imputing a billing figure for customers who were never billed
+would be fabricating data. Decision: drop. Dataset goes from 7,043 to 7,032 rows.
+
+### Column removals
+Dropped customerID — identifier column, carries no predictive signal.
+
+### Binary encoding
+Five columns were pure Yes/No strings: Partner, Dependents, PhoneService,
+PaperlessBilling, Churn. Mapped Yes → 1, No → 0 using a loop with .map().
+Churn distribution after encoding: 5,163 retained / 1,869 churned — consistent
+with EDA figures.
+
+### Service column collapsing
+Seven service columns used three values: Yes, No, and either "No internet service"
+or "No phone service". The distinction between No and No internet/phone service carries
+no additional information for the model — both mean the customer does not have the feature.
+Mapped Yes → 1, all other values → 0.
+
+### Remaining categoricals
+gender encoded as Male → 1, Female → 0. Near-even split: 3,549 male, 3,483 female.
+InternetService, Contract, and PaymentMethod one-hot encoded using pd.get_dummies
+with drop_first=False and dtype=int. Keeping all categories avoids hiding information
+and keeps the encoding interpretable. This expands the dataset from 20 to 27 columns.
+
+### Column ordering
+Churn was at index 16 after encoding. Moved to last position so X / y splits
+in the modelling notebook can use clean iloc slicing without specifying column names.
+
+### Final state
+7,032 rows · 27 columns · 0 missing values · all int64 or float64.
+Saved to data/processed/telco_clean.csv.
+
+### Next step
+Feature engineering (04_feature_engineering.ipynb) — create interaction and ratio
+features that capture what the raw columns can't express individually.

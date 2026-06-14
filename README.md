@@ -77,7 +77,17 @@ customer-churn-prediction/
 
 ## Data Cleaning Summary
 
-*To be updated after cleaning.*
+| Step | Column(s) | Issue | Decision |
+|------|-----------|-------|----------|
+| Drop rows | TotalCharges | 11 blank strings not caught by `.isnull()` | Dropped — all had tenure = 0, imputing is fabrication |
+| Drop column | customerID | Identifier, no signal | Dropped |
+| Binary encode | Partner, Dependents, PhoneService, PaperlessBilling, Churn | Yes/No strings | Yes → 1, No → 0 |
+| Collapse to binary | 7 service columns | Yes / No / No internet service | Yes → 1, all else → 0 |
+| Binary encode | gender | Male/Female string | Male → 1, Female → 0 |
+| One-hot encode | InternetService, Contract, PaymentMethod | Multi-class, no ordinal order | get_dummies → 10 new columns |
+| Reorder | Churn | Was at index 16 | Moved to last column |
+
+**Result:** 7,043 → 7,032 rows · 21 → 27 columns · 0 nulls · all numeric
 
 ---
 
@@ -93,7 +103,7 @@ customer-churn-prediction/
 |-------|----------|--------|
 | Data understanding | 01_data_understanding.ipynb | ✅ Complete |
 | Exploratory analysis | 02_eda.ipynb | ✅ Complete |
-| Data cleaning | 03_data_cleaning.ipynb | ⏳ |
+| Data cleaning | 03_data_cleaning.ipynb | ✅ Complete |
 | Feature engineering | 04_feature_engineering.ipynb | ⏳ |
 | Baseline modelling | 05_baseline_model.ipynb | ⏳ |
 | Model improvement | 06_model_improvement.ipynb | ⏳ |
