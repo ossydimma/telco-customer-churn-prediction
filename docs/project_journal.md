@@ -127,3 +127,42 @@ Saved to data/processed/telco_clean.csv.
 ### Next step
 Feature engineering (04_feature_engineering.ipynb) — create interaction and ratio
 features that capture what the raw columns can't express individually.
+
+## 2026-06-17
+
+Completed feature engineering on the Telco Customer Churn dataset.
+
+### Features built and kept
+AvgMonthlySpend = TotalCharges / tenure. Captures historical average spend, which can
+differ from current MonthlyCharges if a customer's plan changed over time. Correlation
+with Churn: 0.192 — on par with MonthlyCharges itself.
+
+HasProtectionBundle: binary flag for customers holding 2 or more of OnlineSecurity,
+OnlineBackup, DeviceProtection, TechSupport. Customers without the bundle churn at 32.9%
+vs 16.8% for those with it — roughly double, even though the raw correlation coefficient
+(-0.178) understates the gap since it only captures linear relationships.
+
+IsNewCustomer: binary flag for tenure ≤ 12 months. The strongest engineered feature —
+0.320 correlation, ranking 3rd in the entire dataset. Churn rate for new customers (47.7%)
+vs everyone else (17.1%) confirms the early-tenure risk window found in EDA.
+
+### Feature tested and rejected
+TotalServices — sum of all 7 service columns into a single count. Correlation with Churn
+was -0.070, weaker than several of its own constituent columns (OnlineSecurity alone: -0.171).
+Services carry unequal predictive weight; summing them dilutes the strong signals with the
+weak ones (StreamingTV, StreamingMovies barely correlate with churn at all). Decision: drop,
+keep the 7 individual binary columns so the model can weigh each independently.
+
+### Process note
+Initially commented out the rejected feature's code instead of removing it. Corrected this —
+dead code with no explanation reads as an accident, not a decision. The right pattern is to
+delete the code and document the reasoning in a markdown cell or here in the journal, the
+same way StorePromoLift was handled in the Rossmann project.
+
+### Final state
+7,032 rows · 30 columns · 0 missing values · all numeric.
+Saved to data/processed/telco_features.csv.
+
+### Next step
+Baseline modelling (05_baseline_model.ipynb) — train/test split with stratification given
+the 73/27 class imbalance, baseline classifier, establish ROC-AUC benchmark.

@@ -93,7 +93,14 @@ customer-churn-prediction/
 
 ## Feature Engineering Summary
 
-*To be updated after feature engineering.*
+| Feature | Type | Description |
+|---------|------|--------------|
+| AvgMonthlySpend | float | TotalCharges / tenure — historical average monthly spend |
+| HasProtectionBundle | binary | 1 if customer holds 2+ protective/support services |
+| IsNewCustomer | binary | 1 if tenure ≤ 12 months — captures the highest-risk window identified in EDA |
+
+One feature (TotalServices — a sum of all 7 service columns) was built, tested against
+target correlation, and rejected: aggregating diluted signal rather than concentrating it.
 
 ---
 
@@ -104,7 +111,7 @@ customer-churn-prediction/
 | Data understanding | 01_data_understanding.ipynb | ✅ Complete |
 | Exploratory analysis | 02_eda.ipynb | ✅ Complete |
 | Data cleaning | 03_data_cleaning.ipynb | ✅ Complete |
-| Feature engineering | 04_feature_engineering.ipynb | ⏳ |
+| Feature engineering | 04_feature_engineering.ipynb | ✅ Complete |
 | Baseline modelling | 05_baseline_model.ipynb | ⏳ |
 | Model improvement | 06_model_improvement.ipynb | ⏳ |
 | Final evaluation | 07_evaluation.ipynb | ⏳ |
@@ -133,4 +140,4 @@ Python · pandas · numpy · matplotlib · seaborn · scikit-learn · XGBoost ·
 Built in public as a portfolio project while transitioning into data science.
 Follow the build on [LinkedIn](https://www.linkedin.com/in/osita-jerry)
 
-GitHub: [github.com/ossydimma/customer-churn-prediction](https://github.com/ossydimma/customer-churn-prediction)
+GitHub: [github.com/ossydimma/customer-churn-prediction](https://github.com/ossydimma/telco-customer-churn-prediction)
