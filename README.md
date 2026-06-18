@@ -104,6 +104,16 @@ target correlation, and rejected: aggregating diluted signal rather than concent
 
 ---
 
+## Model Results
+
+| Model | ROC-AUC | Precision (Churn) | Recall (Churn) | Notes |
+|-------|---------|--------------------|------------------|-------|
+| Logistic Regression (baseline) | 0.8348 | 0.64 | 0.53 | Unscaled features, default threshold |
+
+*Table will grow as later notebooks add tuned and alternative models.*
+
+---
+
 ## Workflow
 
 | Phase | Notebook | Status |
@@ -112,7 +122,7 @@ target correlation, and rejected: aggregating diluted signal rather than concent
 | Exploratory analysis | 02_eda.ipynb | ✅ Complete |
 | Data cleaning | 03_data_cleaning.ipynb | ✅ Complete |
 | Feature engineering | 04_feature_engineering.ipynb | ✅ Complete |
-| Baseline modelling | 05_baseline_model.ipynb | ⏳ |
+| Baseline modelling | 05_baseline_model.ipynb | ✅ Complete |
 | Model improvement | 06_model_improvement.ipynb | ⏳ |
 | Final evaluation | 07_evaluation.ipynb | ⏳ |
 

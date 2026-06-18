@@ -166,3 +166,46 @@ Saved to data/processed/telco_features.csv.
 ### Next step
 Baseline modelling (05_baseline_model.ipynb) — train/test split with stratification given
 the 73/27 class imbalance, baseline classifier, establish ROC-AUC benchmark.
+
+## 2026-06-18
+
+Built the baseline model for the Telco Customer Churn dataset.
+
+### Split strategy
+80/20 train/test split, stratified on Churn. Stratification confirmed working —
+train and test churn rates both landed at 26.58%, eliminating the risk of an
+unrepresentative test set given the 73/27 class imbalance.
+
+### Baseline result
+Logistic Regression scored 0.8348 ROC-AUC on the test set. This is a strong, credible
+number for this dataset — in line with typical published benchmarks — and becomes the
+number every later model and tuning step must beat.
+
+### Default threshold behavior
+At the standard 0.5 cutoff: 80% accuracy, but only 53% recall on actual churners.
+174 churners were missed out of 374 in the test set. This is expected with class
+imbalance, not a model flaw — accuracy looks fine while quietly underperforming on
+the class that actually matters. ROC-AUC was the right call as the primary metric
+from day one.
+
+### Convergence warning investigated
+lbfgs failed to converge within 1000 iterations. Checked feature scales directly
+rather than just increasing max_iter blindly: TotalCharges has a standard deviation
+of ~2,276, while binary flags sit around 0.5. Three orders of magnitude apart on the
+same loss surface. Scaling is the right fix, not more iterations — will apply
+StandardScaler in the next notebook.
+
+### Coefficient sanity check
+Directions broadly agree with EDA and feature engineering findings. Contract_Month-to-month
+and InternetService_Fiber optic carry the strongest churn-increasing coefficients;
+Contract_Two year the strongest churn-decreasing one. IsNewCustomer holds a top-5 positive
+coefficient, consistent with its 0.320 correlation found earlier.
+
+Two coefficients (PhoneService, InternetService_No) showed unexpectedly large negative
+magnitudes despite weak signal in earlier correlation checks — most likely a scale artifact
+in unscaled logistic regression rather than genuine importance. Confirms that coefficient
+magnitudes shouldn't be trusted at face value until features are scaled.
+
+### Next step
+Model improvement (06_model_improvement.ipynb) — scale features, test LightGBM and/or
+Random Forest against the 0.8348 baseline, explore threshold tuning to improve churner recall.
