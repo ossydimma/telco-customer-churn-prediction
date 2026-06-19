@@ -209,3 +209,50 @@ magnitudes shouldn't be trusted at face value until features are scaled.
 ### Next step
 Model improvement (06_model_improvement.ipynb) — scale features, test LightGBM and/or
 Random Forest against the 0.8348 baseline, explore threshold tuning to improve churner recall.
+
+
+## 2026-06-18
+
+Completed model improvement notebook — tested scaling, Random Forest, and LightGBM
+against the 0.8348 baseline.
+
+### Results
+All models clustered tightly. V1 (scaled LogReg): 0.8340. V3 (LightGBM default): 0.8344.
+V2 (Random Forest): 0.8217. No model meaningfully beat the unscaled baseline by ROC-AUC.
+
+This is a real finding, not a failure. The strongest predictors in this dataset —
+contract type, tenure, payment method — are clean binary and encoded signals. Logistic
+regression handles linear boundaries well, and this problem's decision boundary appears
+to be largely linear at default settings. Tree models need tuning to find interactions
+that aren't visible in the raw correlations.
+
+### Scaling
+Applying StandardScaler via Pipeline eliminated the ConvergenceWarning from notebook 05.
+ROC-AUC barely moved (0.8348 → 0.8340) as expected — ROC-AUC is rank-based and
+scale-invariant. But the pipeline is the correct object to save and deploy: scaler and
+model travel together so inference-time data gets the same transformation training saw.
+
+### class_weight='balanced' tested and rejected
+Tried balanced weighting on both Random Forest and LightGBM. Both scores dropped.
+At 73/27 imbalance, the models were already learning the minority class adequately.
+Aggressive reweighting over-corrected and hurt overall ranking quality. Decision: revert.
+
+### LightGBM feature importance observation
+Split-count importance placed MonthlyCharges, TotalCharges, and AvgMonthlySpend as the
+top three features — all measuring closely related aspects of customer spend. This is
+partly a collinearity artifact and partly a known limitation of split-count importance,
+which systematically undervalues binary features by offering fewer split points.
+Contract_Month-to-month did not appear in the top 10 despite being the strongest
+predictor throughout EDA and feature engineering. Importance metrics should be read
+critically, not taken at face value.
+
+### Threshold tuning
+Tested thresholds from 0.30 to 0.50 on the scaled pipeline. Default 0.50 gives
+precision 0.549, recall 0.535, F1 0.582. At 0.35: recall jumps to 0.717, F1 improves
+to 0.620. Recommended threshold: 0.35. In a churn context, the cost of missing a
+churner — lost recurring revenue, potential for churn to compound — exceeds the cost
+of triggering an unnecessary retention offer.
+
+### Next step
+Hyperparameter tuning (07_tuning.ipynb) — Optuna search on LightGBM to test whether
+deliberate tuning can beat the 0.8340 pipeline baseline.

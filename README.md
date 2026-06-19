@@ -106,9 +106,15 @@ target correlation, and rejected: aggregating diluted signal rather than concent
 
 ## Model Results
 
-| Model | ROC-AUC | Precision (Churn) | Recall (Churn) | Notes |
-|-------|---------|--------------------|------------------|-------|
-| Logistic Regression (baseline) | 0.8348 | 0.64 | 0.53 | Unscaled features, default threshold |
+| Version | Model | ROC-AUC | Notes |
+|---------|-------|---------|-------|
+| Baseline | Logistic Regression (unscaled) | 0.8348 | Convergence warning — scale mismatch |
+| V1 | Logistic Regression + StandardScaler | 0.8340 | Converged cleanly |
+| V2 | Random Forest (200 trees) | 0.8217 | Default params |
+| V3 | LightGBM | 0.8344 | Default params — tuning in notebook 07 |
+
+**Best model:** Scaled Logistic Regression Pipeline · ROC-AUC 0.8340 · Threshold 0.35
+(Recall: 0.717, Precision: 0.546, F1: 0.620)
 
 *Table will grow as later notebooks add tuned and alternative models.*
 
@@ -123,7 +129,7 @@ target correlation, and rejected: aggregating diluted signal rather than concent
 | Data cleaning | 03_data_cleaning.ipynb | ✅ Complete |
 | Feature engineering | 04_feature_engineering.ipynb | ✅ Complete |
 | Baseline modelling | 05_baseline_model.ipynb | ✅ Complete |
-| Model improvement | 06_model_improvement.ipynb | ⏳ |
+| Model improvement | 06_model_improvement.ipynb | ✅ Complete |
 | Final evaluation | 07_evaluation.ipynb | ⏳ |
 
 ---
