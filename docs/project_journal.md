@@ -208,10 +208,10 @@ magnitudes shouldn't be trusted at face value until features are scaled.
 
 ### Next step
 Model improvement (06_model_improvement.ipynb) — scale features, test LightGBM and/or
-Random Forest against the 0.8348 baseline, explore threshold tuning to improve churner recall.
+Random Forest against the 0.8348 baseline, explore threshold tuning to improve churnerrecall.
 
 
-## 2026-06-18
+## 2026-06-19
 
 Completed model improvement notebook — tested scaling, Random Forest, and LightGBM
 against the 0.8348 baseline.
@@ -256,3 +256,51 @@ of triggering an unnecessary retention offer.
 ### Next step
 Hyperparameter tuning (07_tuning.ipynb) — Optuna search on LightGBM to test whether
 deliberate tuning can beat the 0.8340 pipeline baseline.
+
+
+## 2026-06-21
+
+Completed hyperparameter tuning on LightGBM using Optuna with 5-fold
+stratified cross-validation.
+
+### Method
+100 trials with StratifiedKFold (n_splits=5, shuffle=True, random_state=42) inside
+the objective function. CV was added after the first tuning run — which evaluated
+directly on the test set — to make the search more robust and prevent the optimiser
+from finding params that happen to work on one specific test split.
+
+### Result
+Best CV score (training folds): 0.8495
+Test set score (held-out, single evaluation): 0.8405
+
+Tuned LightGBM beats the pipeline baseline by +0.0065 (0.8340 → 0.8405).
+The CV score is higher than the test score — this is expected. CV averages
+performance over 5 folds of training data; the test set is a different fixed
+split. A gap of ~0.009 is normal and not a sign of overfitting.
+
+### Stochastic variability
+Optuna's score varied slightly across the three runs conducted during development
+(0.8405, 0.8407, 0.8431 on test). This is expected — 100 trials sample a different
+region of the parameter space each time. The consistent pattern was tuned LightGBM
+landing between 0.840–0.843 across all runs, always above the 0.8340 baseline.
+Final run locked in at 0.8405.
+
+### Best params
+n_estimators: 533, learning_rate: 0.0185, num_leaves: 56, max_depth: 9,
+min_child_samples: 96, subsample: 0.596, colsample_bytree: 0.510,
+reg_alpha: 9.618, reg_lambda: 0.212.
+
+min_child_samples=96 (high) and num_leaves=56 (moderate) produce a more
+regularised tree than defaults. This reduces over-splitting on continuous
+features, which is consistent with the dataset's largely linear decision boundary.
+
+### Feature importance
+Continuous features still dominate split-count importance (TotalCharges, tenure,
+MonthlyCharges, AvgMonthlySpend). The same caveat from notebook 06 applies —
+split-count importance systematically undervalues binary features. Full SHAP
+analysis in notebook 08 will give a more reliable view of what the model is
+actually using.
+
+### Next step
+Final evaluation (08_evaluation.ipynb) — full classification report, confusion
+matrix, threshold analysis, and SHAP feature importance on the tuned model.

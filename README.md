@@ -50,7 +50,8 @@ customer-churn-prediction/
 │   ├── 04_feature_engineering.ipynb
 │   ├── 05_baseline_model.ipynb
 │   ├── 06_model_improvement.ipynb
-│   └── 07_evaluation.ipynb
+|   |── 07_tuning.ipynb
+│   └── 08_evaluation.ipynb
 │
 ├── .gitignore
 └── README.md
@@ -60,7 +61,15 @@ customer-churn-prediction/
 
 ## Results
 
-*To be updated after modelling.*
+| Metric | Score |
+|--------|-------|
+| ROC-AUC (best model) | 0.8340 |
+| Recall at threshold 0.35 | 71.7% |
+| Precision at threshold 0.35 | 54.6% |
+| F1 at threshold 0.35 | 0.620 |
+
+**Model:** Logistic Regression + StandardScaler (Pipeline)  
+**Recommended operating threshold:** 0.35 — raises churner recall from 53.2% to 71.7%
 
 ---
 
@@ -106,17 +115,16 @@ target correlation, and rejected: aggregating diluted signal rather than concent
 
 ## Model Results
 
-| Version | Model | ROC-AUC | Notes |
-|---------|-------|---------|-------|
-| Baseline | Logistic Regression (unscaled) | 0.8348 | Convergence warning — scale mismatch |
-| V1 | Logistic Regression + StandardScaler | 0.8340 | Converged cleanly |
-| V2 | Random Forest (200 trees) | 0.8217 | Default params |
-| V3 | LightGBM | 0.8344 | Default params — tuning in notebook 07 |
+| Model | ROC-AUC | Notes |
+|-------|---------|-------|
+| LightGBM (Optuna tuned) | **0.8405** | 100 trials, 5-fold CV · best model |
+| Logistic Regression (unscaled) | 0.8348 | Baseline — ConvergenceWarning |
+| LightGBM (default) | 0.8344 | Default params, no tuning |
+| Logistic Regression + StandardScaler | 0.8340 | Pipeline — clean convergence |
+| Random Forest (200 trees) | 0.8217 | Default params |
 
-**Best model:** Scaled Logistic Regression Pipeline · ROC-AUC 0.8340 · Threshold 0.35
-(Recall: 0.717, Precision: 0.546, F1: 0.620)
-
-*Table will grow as later notebooks add tuned and alternative models.*
+**Final model:** LightGBM (Optuna tuned) · ROC-AUC 0.8405  
+**Saved:** `models/tuned_lgbm.joblib`
 
 ---
 
@@ -130,7 +138,8 @@ target correlation, and rejected: aggregating diluted signal rather than concent
 | Feature engineering | 04_feature_engineering.ipynb | ✅ Complete |
 | Baseline modelling | 05_baseline_model.ipynb | ✅ Complete |
 | Model improvement | 06_model_improvement.ipynb | ✅ Complete |
-| Final evaluation | 07_evaluation.ipynb | ⏳ |
+| Hyperparameter tuning | 07_tuning.ipynb | ✅ Complete |
+| Final evaluation | 08_evaluation.ipynb | ⏳ |
 
 ---
 
@@ -147,7 +156,7 @@ churners and false alarms.
 
 ## Tools and Libraries
 
-Python · pandas · numpy · matplotlib · seaborn · scikit-learn · XGBoost · LightGBM · Optuna
+Python · pandas · numpy · matplotlib · seaborn · scikit-learn · LightGBM · joblib · Optuna
 
 ---
 
