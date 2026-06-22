@@ -1,3 +1,4 @@
 
 /data
-/models
+models/
+!models/tuned_lgbm.joblib

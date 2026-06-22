@@ -4,12 +4,12 @@
 
 Customer retention is one of the most important challenges businesses face.
 Acquiring new customers is often more expensive than retaining existing ones,
-making churn prediction a valuable business problem.
+making churn prediction a high-value business problem.
 
-This project builds a machine learning model to predict whether a customer is likely
-to leave a telecoms company based on demographics, account information, and service usage.
-The goal is not only a working predictive model but identifying the factors that drive
-churn so retention efforts can be targeted where they matter most.
+This project builds a machine learning model to predict whether a customer is
+likely to leave a telecoms company based on demographics, account information,
+and service usage. The goal is not only a working predictive model but identifying
+the factors that drive churn so retention efforts can be targeted where they matter most.
 
 ---
 
@@ -21,12 +21,13 @@ churn so retention efforts can be targeted where they matter most.
 |------|------|-------------|
 | Telco-Customer-Churn.csv | 7,043 | Customer demographics, account info, services subscribed, and churn label |
 
-> **Note:** Raw data files are not tracked in this repository.
-> Download the dataset from Kaggle and place the CSV in `data/raw/`.
+> Raw data files are not tracked in this repository.
+> Download from Kaggle and place the CSV in `data/raw/`.
 
 **Target variable:** `Churn` — whether a customer left (Yes / No)
 
 ---
+
 
 ## Project Structure
 
@@ -53,34 +54,54 @@ customer-churn-prediction/
 |   |── 07_tuning.ipynb
 │   └── 08_evaluation.ipynb
 │
+├── src/
+│   └── predict.py
+│
+├── requirements.txt
 ├── .gitignore
 └── README.md
+
 ```
+
+---
 
 ---
 
 ## Results
 
-| Metric | Score |
-|--------|-------|
-| ROC-AUC (best model) | 0.8340 |
-| Recall at threshold 0.35 | 71.7% |
-| Precision at threshold 0.35 | 54.6% |
-| F1 at threshold 0.35 | 0.620 |
+| Metric | Default threshold (0.5) | Recommended threshold (0.35) |
+|--------|------------------------|------------------------------|
+| ROC-AUC | 0.8404 | 0.8404 (threshold-invariant) |
+| Precision (churners) | 0.630 | 0.553 |
+| Recall (churners) | 0.519 | 0.738 |
+| F1 (churners) | 0.569 | 0.632 |
+| Churners caught | 194 / 374 | 276 / 374 |
 
-**Model:** Logistic Regression + StandardScaler (Pipeline)  
-**Recommended operating threshold:** 0.35 — raises churner recall from 53.2% to 71.7%
+**Final model:** LightGBM (Optuna tuned, 5-fold CV, 100 trials)
+**Recommended threshold:** 0.35 — raises recall from 51.9% to 73.8%, catching 81 additional churners
+
+---
+
+## Model Progression
+
+| Stage | ROC-AUC | Notes |
+|-------|---------|-------|
+| Logistic Regression (baseline) | 0.8348 | ConvergenceWarning — scale mismatch |
+| Logistic Regression + StandardScaler | 0.8340 | Converged cleanly via Pipeline |
+| LightGBM (default) | 0.8344 | No tuning |
+| Random Forest (200 trees) | 0.8217 | No tuning |
+| **LightGBM (Optuna tuned)** | **0.8404** | 100 trials · 5-fold CV · best model |
 
 ---
 
 ## Key Findings from EDA
 
-- **Contract type** is the strongest categorical churn driver — month-to-month customers churn at 42.7% vs 2.8% for two-year contracts
-- **Fiber optic** customers churn at 41.9% — more than double the DSL rate of 19.0%
-- **Electronic check** payment method has a 45.3% churn rate — the highest of all payment types
+- **Contract type** is the strongest categorical churn driver — month-to-month: 42.7% vs two-year: 2.8%
+- **Fiber optic** customers churn at 41.9% — more than double DSL at 19.0%
+- **Electronic check** payment has the highest churn rate at 45.3%
 - **Senior citizens** churn at 41.7% vs 23.6% for non-seniors
-- **Short-tenure customers are the highest-risk group** — 47.4% churn rate in the first 12 months, falling to 9.5% after 4 years
-- **Churned customers pay more per month but less in total** — they leave before charges accumulate
+- **First 12 months are the highest-risk window** — 47.4% churn rate, falling to 9.5% after 4 years
+- **Churned customers pay more monthly but less in total** — they leave before spend accumulates
 
 ---
 
@@ -102,29 +123,48 @@ customer-churn-prediction/
 
 ## Feature Engineering Summary
 
-| Feature | Type | Description |
-|---------|------|--------------|
-| AvgMonthlySpend | float | TotalCharges / tenure — historical average monthly spend |
-| HasProtectionBundle | binary | 1 if customer holds 2+ protective/support services |
-| IsNewCustomer | binary | 1 if tenure ≤ 12 months — captures the highest-risk window identified in EDA |
+| Feature | Type | Description | Correlation with Churn |
+|---------|------|-------------|------------------------|
+| AvgMonthlySpend | float | TotalCharges / tenure — historical average monthly spend | 0.192 |
+| HasProtectionBundle | binary | 1 if customer holds 2+ of OnlineSecurity, OnlineBackup, DeviceProtection, TechSupport | -0.178 |
+| IsNewCustomer | binary | 1 if tenure ≤ 12 months | 0.320 |
 
-One feature (TotalServices — a sum of all 7 service columns) was built, tested against
-target correlation, and rejected: aggregating diluted signal rather than concentrating it.
+**Rejected:** TotalServices (sum of 7 service columns) — correlation -0.070, weaker than several
+constituent columns. Aggregation diluted signal rather than concentrating it.
 
 ---
 
-## Model Results
+## Business Interpretation
 
-| Model | ROC-AUC | Notes |
-|-------|---------|-------|
-| LightGBM (Optuna tuned) | **0.8405** | 100 trials, 5-fold CV · best model |
-| Logistic Regression (unscaled) | 0.8348 | Baseline — ConvergenceWarning |
-| LightGBM (default) | 0.8344 | Default params, no tuning |
-| Logistic Regression + StandardScaler | 0.8340 | Pipeline — clean convergence |
-| Random Forest (200 trees) | 0.8217 | Default params |
+Four actionable high-risk profiles identified:
 
-**Final model:** LightGBM (Optuna tuned) · ROC-AUC 0.8405  
-**Saved:** `models/tuned_lgbm.joblib`
+1. **Month-to-month customers in their first year** — highest-risk combination in the dataset.
+   Incentivising an early contract upgrade from month-to-month to one-year dramatically reduces risk.
+
+2. **Fiber optic customers with high monthly charges** — likely reflects perceived value mismatch.
+   Proactive service quality check or loyalty discount for this segment.
+
+3. **Electronic check payment customers** — proxy for low engagement.
+   Migration to automatic payment correlates with churn rates dropping from 45% to 15–17%.
+
+4. **Senior citizens without support services** — concentrated risk segment.
+   Bundled support offer targeting seniors reduces both churn and service friction.
+
+---
+
+## Loading the Model
+
+```python
+import joblib
+import pandas as pd
+
+model = joblib.load('models/tuned_lgbm.joblib')
+
+# Input must have the same 29 features used in training
+# See src/predict.py for a complete example with sample input
+y_proba = model.predict_proba(X)[:, 1]
+y_pred = (y_proba >= 0.35).astype(int)  # recommended threshold
+```
 
 ---
 
@@ -139,30 +179,28 @@ target correlation, and rejected: aggregating diluted signal rather than concent
 | Baseline modelling | 05_baseline_model.ipynb | ✅ Complete |
 | Model improvement | 06_model_improvement.ipynb | ✅ Complete |
 | Hyperparameter tuning | 07_tuning.ipynb | ✅ Complete |
-| Final evaluation | 08_evaluation.ipynb | ⏳ |
+| Final evaluation | 08_evaluation.ipynb | ✅ Complete |
 
 ---
 
 ## Evaluation Metric
 
 **Primary:** ROC-AUC — measures the model's ability to rank churners above non-churners
-across all classification thresholds. Chosen because the dataset is imbalanced (~27% positive
-class) and accuracy alone would be misleading.
+across all thresholds. Chosen because accuracy is misleading at 73/27 class imbalance.
 
-**Secondary:** Precision, Recall, F1 — to evaluate the trade-off between catching actual
-churners and false alarms.
+**Secondary:** Precision, Recall, F1 at threshold 0.35 — to quantify the churner
+detection tradeoff in operational terms.
 
 ---
 
 ## Tools and Libraries
 
-Python · pandas · numpy · matplotlib · seaborn · scikit-learn · LightGBM · joblib · Optuna
+Python · pandas · numpy · matplotlib · seaborn · scikit-learn · LightGBM · Optuna · SHAP · joblib
 
 ---
 
 ## Author
 
 Built in public as a portfolio project while transitioning into data science.
-Follow the build on [LinkedIn](https://www.linkedin.com/in/osita-jerry)
 
-GitHub: [github.com/ossydimma/customer-churn-prediction](https://github.com/ossydimma/telco-customer-churn-prediction)
+[LinkedIn](https://www.linkedin.com/in/osita-jerry) · [GitHub](https://github.com/ossydimma/telco-customer-churn-prediction)

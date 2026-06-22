@@ -304,3 +304,44 @@ actually using.
 ### Next step
 Final evaluation (08_evaluation.ipynb) — full classification report, confusion
 matrix, threshold analysis, and SHAP feature importance on the tuned model.
+
+
+## 2026-06-22
+
+Completed final evaluation on the tuned LightGBM model and wrapped the project.
+
+### Final model performance
+ROC-AUC: 0.8404 on the held-out test set (1,407 customers, never seen during
+training or tuning). At default threshold 0.5: recall 51.9%, F1 0.569.
+At recommended threshold 0.35: recall 73.8%, F1 0.632 — catching 276 of 374
+churners vs 194 at default.
+
+### SHAP analysis
+SHAP confirmed what EDA and feature engineering found throughout the project.
+Contract type and tenure-related features (including IsNewCustomer) are the
+dominant drivers. Split-count importance from notebooks 06 and 07 had
+undervalued binary features — SHAP corrects this by measuring the actual
+marginal contribution of each feature to each prediction rather than counting
+tree splits. The two analyses are now consistent.
+
+### Threshold decision
+The 0.35 threshold is the recommended operating point. In a churn retention
+context, the cost of missing a churner (lost recurring revenue) exceeds the
+cost of a false alarm (one unnecessary retention offer). Moving from 0.5 to
+0.35 catches 81 additional churners at the cost of 93 additional false alarms.
+That tradeoff favours recall in virtually any realistic business valuation.
+
+### Project wrap
+predict.py added to src/ with full feature documentation and a sample input
+representing a high-risk customer profile (month-to-month, fiber optic, new,
+electronic check). requirements.txt added. README finalised with all sections
+complete — business problem, results, model progression, data cleaning, feature
+engineering, business interpretation, and loading instructions.
+
+### Reflection
+The project confirmed that on well-structured tabular business data, a simple
+Logistic Regression baseline (0.8348) is genuinely competitive with a tuned
+gradient boosting model (0.8404). The gap is real but modest. The more impactful
+decisions were upstream — the threshold choice, the feature engineering, and the
+decision not to impute TotalCharges for tenure=0 customers — rather than in
+algorithm selection or tuning. That's a finding worth carrying forward.
