@@ -28,7 +28,6 @@ the factors that drive churn so retention efforts can be targeted where they mat
 
 ---
 
-
 ## Project Structure
 
 ```
@@ -51,7 +50,7 @@ customer-churn-prediction/
 │   ├── 04_feature_engineering.ipynb
 │   ├── 05_baseline_model.ipynb
 │   ├── 06_model_improvement.ipynb
-|   |── 07_tuning.ipynb
+|   ├── 07_tuning.ipynb
 │   └── 08_evaluation.ipynb
 │
 ├── src/
@@ -65,9 +64,11 @@ customer-churn-prediction/
 
 ---
 
----
-
 ## Results
+
+The final model is LightGBM tuned with Optuna across 100 trials and 5-fold
+cross-validation. A threshold of 0.35 is recommended over the default 0.5
+because the business cost of missing a churner outweighs the cost of a false positive.
 
 | Metric | Default threshold (0.5) | Recommended threshold (0.35) |
 |--------|------------------------|------------------------------|
@@ -91,6 +92,20 @@ customer-churn-prediction/
 | LightGBM (default) | 0.8344 | No tuning |
 | Random Forest (200 trees) | 0.8217 | No tuning |
 | **LightGBM (Optuna tuned)** | **0.8404** | 100 trials · 5-fold CV · best model |
+
+---
+
+## Validation Strategy
+
+The dataset was split 80/20 (train/test) with stratification on the target variable,
+preserving the 73/27 class ratio in both sets. The test set was held out completely
+and only evaluated once — after the final model was selected and retrained.
+
+During hyperparameter tuning, Optuna used 5-fold stratified cross-validation inside
+each trial, evaluating every candidate parameter set against 5 different validation
+folds of the training data. This prevents the search from finding parameters that
+happen to overfit one specific validation split. The CV mean ROC-AUC (0.8495) was the
+optimisation target; the test set score (0.8404) is the reported performance.
 
 ---
 
@@ -196,6 +211,8 @@ detection tradeoff in operational terms.
 ## Tools and Libraries
 
 Python · pandas · numpy · matplotlib · seaborn · scikit-learn · LightGBM · Optuna · SHAP · joblib
+
+Reproducible environment: `pip install -r requirements.txt`
 
 ---
 
